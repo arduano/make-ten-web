@@ -16,9 +16,6 @@ const nextConfig = {
     return config;
   },
 
-  basePath: '/make-ten-web',
-  assetPrefix: '/make-ten-web/',
-
   reactStrictMode: true,
 };
 

@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && next export && mv ./out ./docs",
+    "build:wasm": "cd ./calculator && wasm-pack build",
+    "build": "yarn build:wasm && next build && next export",
     "start": "next start"
   },
   "dependencies": {

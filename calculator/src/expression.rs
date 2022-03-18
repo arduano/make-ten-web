@@ -51,6 +51,11 @@ impl Expression {
                 if left_val == 0 {
                     return None;
                 }
+
+                // Only leave multiply by one instead
+                if right_val == 1 {
+                    return None;
+                }
             }
             OperationKind::Subtract => {
                 if left_val < right_val {
@@ -64,6 +69,11 @@ impl Expression {
             }
             OperationKind::Power => {
                 if right_val < 0 {
+                    return None;
+                }
+
+                // Only leave multiply by one instead
+                if right_val == 1 {
                     return None;
                 }
             }
