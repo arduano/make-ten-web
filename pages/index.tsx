@@ -8,8 +8,7 @@ import { useEffect } from "react";
 
 const Home: NextPage = () => {
   useEffect(() => {
-    let baz = new test.Baz("test");
-    console.log(test.fields_obj(baz).name);
+    test.run();
   }, []);
 
   return (
