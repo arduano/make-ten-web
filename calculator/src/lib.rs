@@ -2,7 +2,6 @@
 
 use expression::{EvaluatedExpr, Expression};
 use gen_iter::gen_iter;
-use itertools::Itertools;
 use operation::{are_operations_reverse, is_operation_negative, reverse_operation, OperationKind};
 use std::{cmp::Ordering, ops::DerefMut};
 
@@ -183,9 +182,7 @@ fn fully_shuffle_expr(expression: &mut EvaluatedExpr, print: bool) {
 }
 
 #[wasm_bindgen]
-pub fn run() {
-    let inputs = &[6, 2, 5, 6];
-
+pub fn run(inputs: &[i32]) -> js_sys::Array {
     let tens = get_tens(inputs).map(|mut e| {
         fully_shuffle_expr(&mut e, false);
         e
@@ -200,9 +197,7 @@ pub fn run() {
         tens_vec.push(ten);
     }
 
-    let tens = tens_vec.into_iter().map(|t| t.to_text()).sorted();
+    let tens = tens_vec.into_iter().map(|t| t.to_text());
 
-    for ten in tens {
-        log(&ten);
-    }
+    tens.map(|s| JsValue::from_str(&s)).collect()
 }
