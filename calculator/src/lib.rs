@@ -2,12 +2,7 @@
 
 use gen_iter::gen_iter;
 use itertools::Itertools;
-use std::{
-    cmp::Ordering,
-    collections::{hash_map::DefaultHasher, HashSet},
-    hash::{Hash, Hasher},
-    rc::Rc,
-};
+use std::{cmp::Ordering, hash::Hash};
 
 use wasm_bindgen::prelude::*;
 
