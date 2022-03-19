@@ -134,32 +134,30 @@ fn recursively_shuffle_expr(expression: &mut EvaluatedExpr) -> bool {
         }
     }
 
-    match operation.kind {
-        OperationKind::Add | OperationKind::Multiply => {}
-        OperationKind::Subtract | OperationKind::Divide => {
-            if let Expression::Op(right_op) = operation.right.deref_mut() {
-                // Unwrap right side addition/multiplication
-                // E.g. (a - (b + c)) becomes ((a - c) - b)
-                if are_operations_reverse(operation.kind, right_op.kind) {
-                    right_op.kind = operation.kind;
-                    std::mem::swap(&mut operation.left, &mut right_op.left);
-                    std::mem::swap(&mut operation.left, &mut operation.right);
-                    changed = true;
-                }
-            }
-
-            if let Expression::Op(right_op) = operation.right.deref_mut() {
-                // Unwrap right side subtraction/division
-                // E.g. (a - (b - c)) becomes ((a + c) - b)
-                if operation.kind == right_op.kind {
-                    right_op.kind = reverse_operation(operation.kind);
-                    std::mem::swap(&mut operation.left, &mut right_op.left);
-                    std::mem::swap(&mut operation.left, &mut operation.right);
-                    changed = true;
-                }
+    if let OperationKind::Subtract | OperationKind::Divide = operation.kind {
+        if let Expression::Op(right_op) = operation.right.deref_mut() {
+            // Unwrap right side addition/multiplication
+            // E.g. (a - (b + c)) becomes ((a - c) - b)
+            if are_operations_reverse(operation.kind, right_op.kind) {
+                right_op.kind = operation.kind;
+                std::mem::swap(&mut operation.left, &mut right_op.left);
+                std::mem::swap(&mut operation.left, &mut operation.right);
+                changed = true;
             }
         }
-        _ => {}
+    }
+
+    if let OperationKind::Subtract | OperationKind::Divide = operation.kind {
+        if let Expression::Op(right_op) = operation.right.deref_mut() {
+            // Unwrap right side subtraction/division
+            // E.g. (a - (b - c)) becomes ((a + c) - b)
+            if operation.kind == right_op.kind {
+                right_op.kind = reverse_operation(operation.kind);
+                std::mem::swap(&mut operation.left, &mut right_op.left);
+                std::mem::swap(&mut operation.left, &mut operation.right);
+                changed = true;
+            }
+        }
     }
 
     // Compare the right element of the internal expression with the external right element

@@ -121,8 +121,8 @@ impl Operation {
     }
 
     pub fn get_complexity(&self) -> u32 {
-        let left = self.left.get_complexity();
-        let right = self.right.get_complexity();
+        let left = self.left.get_complexity_internal(self.kind, true);
+        let right = self.right.get_complexity_internal(self.kind, false);
 
         let complexity = left + right;
 
@@ -145,13 +145,6 @@ pub fn is_operator_greater_than(op1: OperationKind, op2: OperationKind) -> bool 
             _ => false,
         },
         OperationKind::Power => false,
-    }
-}
-
-pub fn is_operation_negative(op: OperationKind) -> bool {
-    match op {
-        OperationKind::Subtract | OperationKind::Divide => true,
-        _ => false,
     }
 }
 
