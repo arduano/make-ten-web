@@ -107,6 +107,31 @@ impl Operation {
             right_depth
         }
     }
+
+    pub fn get_complexity_internal(&self, parent_op: OperationKind, is_left: bool) -> u32 {
+        let internal_complexity = self.get_complexity();
+
+        let use_parenthises = is_operator_greater_than(self.kind, parent_op) || !is_left;
+
+        if use_parenthises {
+            internal_complexity + 10
+        } else {
+            internal_complexity
+        }
+    }
+
+    pub fn get_complexity(&self) -> u32 {
+        let left = self.left.get_complexity();
+        let right = self.right.get_complexity();
+
+        let complexity = left + right;
+
+        match self.kind {
+            OperationKind::Add | OperationKind::Subtract => complexity,
+            OperationKind::Multiply | OperationKind::Divide => complexity * 2,
+            OperationKind::Power => complexity * 5,
+        }
+    }
 }
 
 pub fn is_operator_greater_than(op1: OperationKind, op2: OperationKind) -> bool {

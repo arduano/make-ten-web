@@ -131,6 +131,20 @@ impl Expression {
             Expression::Op(op) => op.depth(),
         }
     }
+
+    pub fn get_complexity_internal(&self, parent_op: OperationKind, is_left: bool) -> u32 {
+        match self {
+            Expression::Num(_) => 10,
+            Expression::Op(op) => op.get_complexity_internal(parent_op, is_left),
+        }
+    }
+
+    pub fn get_complexity(&self) -> u32 {
+        match self {
+            Expression::Num(_) => 10,
+            Expression::Op(op) => op.get_complexity(),
+        }
+    }
 }
 
 impl std::ops::Deref for EvaluatedExpr {

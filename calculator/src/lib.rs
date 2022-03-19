@@ -2,7 +2,8 @@
 
 use expression::{EvaluatedExpr, Expression};
 use gen_iter::gen_iter;
-use operation::{are_operations_reverse, is_operation_negative, reverse_operation, OperationKind};
+use itertools::Itertools;
+use operation::{are_operations_reverse, reverse_operation, OperationKind};
 use std::{cmp::Ordering, ops::DerefMut};
 
 use wasm_bindgen::prelude::*;
@@ -95,27 +96,46 @@ fn recursively_shuffle_expr(expression: &mut EvaluatedExpr) -> bool {
         return false;
     };
 
-    match operation.kind {
-        OperationKind::Add | OperationKind::Multiply => {
-            // Compare 2 operations inside the same expression
-            if operation.left.compare_position(&operation.right) == Ordering::Less {
-                std::mem::swap(&mut operation.left, &mut operation.right);
+    if let OperationKind::Add | OperationKind::Multiply = operation.kind {
+        // Compare 2 operations inside the same expression
+        // E.g. swap x and y in (x + y)
+        if operation.left.compare_position(&operation.right) == Ordering::Less {
+            std::mem::swap(&mut operation.left, &mut operation.right);
+            changed = true;
+        }
+    }
+
+    if let OperationKind::Add | OperationKind::Multiply = operation.kind {
+        // Compare the right element of the internal expression with the external right element
+        // As long as they are on the same order of operations with each other
+        // E.g. convert ((a - x) + y) into ((a + y) - x)
+        if let Expression::Op(op) = operation.left.deref_mut() {
+            if are_operations_reverse(op.kind, operation.kind) {
+                std::mem::swap(&mut op.right, &mut operation.right);
+                std::mem::swap(&mut op.kind, &mut operation.kind);
+
                 changed = true;
             }
+        }
+    }
 
-            // Compare the right element of the internal expression with the external right element
-            // As long as they are on the same order of operations with each other
-            // E.g. convert ((a - x) + y) into ((a + y) - x)
-            if let Expression::Op(op) = operation.left.deref_mut() {
-                if are_operations_reverse(op.kind, operation.kind) && is_operation_negative(op.kind)
-                {
-                    std::mem::swap(&mut op.right, &mut operation.right);
-                    std::mem::swap(&mut op.kind, &mut operation.kind);
+    if let OperationKind::Add | OperationKind::Multiply = operation.kind {
+        // Change the order of operations for reverse operations
+        // E.g. convert (y + (a - x)) into ((y + a) - x))
+        if let Expression::Op(op) = operation.right.deref_mut() {
+            if are_operations_reverse(op.kind, operation.kind) {
+                std::mem::swap(&mut op.right, &mut op.left);
+                std::mem::swap(&mut op.left, &mut operation.left);
+                std::mem::swap(&mut op.kind, &mut operation.kind);
+                std::mem::swap(&mut operation.left, &mut operation.right);
 
-                    changed = true;
-                }
+                changed = true;
             }
         }
+    }
+
+    match operation.kind {
+        OperationKind::Add | OperationKind::Multiply => {}
         OperationKind::Subtract | OperationKind::Divide => {
             if let Expression::Op(right_op) = operation.right.deref_mut() {
                 // Unwrap right side addition/multiplication
@@ -196,6 +216,12 @@ pub fn run(inputs: &[i32]) -> js_sys::Array {
         }
         tens_vec.push(ten);
     }
+
+    let tens_vec = tens_vec
+        .into_iter()
+        .map(|expr| (expr.get_complexity(), expr))
+        .sorted_by(|a, b| a.0.cmp(&b.0))
+        .map(|(_, expr)| expr);
 
     let tens = tens_vec.into_iter().map(|t| t.to_text());
 
