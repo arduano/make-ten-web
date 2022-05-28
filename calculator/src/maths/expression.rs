@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 
-use crate::operation::{Operation, OperationKind};
+use super::operation::{Operation, OperationKind};
+use super::*;
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum Expression {
@@ -29,10 +30,12 @@ impl Expression {
         }
     }
 
+    /// Create a new expression from a number
     pub fn new_num(num: i32) -> EvaluatedExpr {
         EvaluatedExpr::new(Expression::Num(num))
     }
 
+    /// Create a new expression from an operation
     pub fn new_op(
         left: EvaluatedExpr,
         right: EvaluatedExpr,
@@ -90,27 +93,9 @@ impl Expression {
         Some(EvaluatedExpr::new(expr))
     }
 
-    pub fn evaluate(&self) -> i32 {
-        match self {
-            Expression::Num(n) => *n,
-            Expression::Op(op) => op.evaluate(),
-        }
-    }
-
-    pub fn equals(&self, other: &Expression) -> bool {
-        match self {
-            Expression::Num(n) => match other {
-                Expression::Num(m) => *n == *m,
-                _ => false,
-            },
-            Expression::Op(op) => match other {
-                Expression::Op(op2) => op.equals(op2),
-                _ => false,
-            },
-        }
-    }
-
-    pub fn compare_position(&self, other: &Self) -> Ordering {
+    /// Compare the precedence of the expression. This is useful for shuffling
+    /// expressions into a normalized form.
+    pub fn compare_shuffle_precidence(&self, other: &Self) -> Ordering {
         match &self {
             Expression::Num(n1) => match other {
                 Expression::Num(n2) => n1.cmp(&n2),
@@ -129,25 +114,53 @@ impl Expression {
             },
         }
     }
+}
 
-    pub fn depth(&self) -> usize {
+impl Evaluate for Expression {
+    fn evaluate(&self) -> i32 {
         match self {
-            Expression::Num(_) => 0,
-            Expression::Op(op) => op.depth(),
+            Expression::Num(n) => *n,
+            Expression::Op(op) => op.evaluate(),
         }
     }
+}
 
-    pub fn get_complexity_internal(&self, parent_op: OperationKind, is_left: bool) -> u32 {
+impl Depth for Expression {
+    fn depth(&self) -> usize {
         match self {
-            Expression::Num(_) => 10,
-            Expression::Op(op) => op.get_complexity_internal(parent_op, is_left),
+            Expression::Num(_) => 1,
+            Expression::Op(op) => op.depth() + 1,
         }
     }
+}
 
-    pub fn get_complexity(&self) -> u32 {
+impl ExpressionEquals for Expression {
+    fn expr_equals(&self, other: &Expression) -> bool {
+        match self {
+            Expression::Num(n) => match other {
+                Expression::Num(m) => *n == *m,
+                _ => false,
+            },
+            Expression::Op(op) => match other {
+                Expression::Op(op2) => op.expr_equals(op2),
+                _ => false,
+            },
+        }
+    }
+}
+
+impl Complexity for Expression {
+    fn get_complexity(&self) -> u32 {
         match self {
             Expression::Num(_) => 10,
             Expression::Op(op) => op.get_complexity(),
+        }
+    }
+
+    fn get_complexity_internal(&self, parent_op: OperationKind, is_left: bool) -> u32 {
+        match self {
+            Expression::Num(_) => 10,
+            Expression::Op(op) => op.get_complexity_internal(parent_op, is_left),
         }
     }
 }

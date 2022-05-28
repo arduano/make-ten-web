@@ -13,7 +13,7 @@ const Home: NextPage = () => {
 
   const results = useMemo(() => {
     let numbers = text.split("").map(Number);
-    const vals = test.run(new Int32Array(numbers)) as string[];
+    const vals = test.generate_solutions(new Int32Array(numbers)) as string[];
     return vals;
   }, [text]);
 
