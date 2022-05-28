@@ -24,11 +24,18 @@ const Home: NextPage = () => {
       flexDirection="column"
       alignItems="center"
       pt={4}
+      px={4}
     >
       <TextField
         inputProps={{
-          style: { textAlign: "center", fontSize: 32, padding: 0 },
+          style: { textAlign: "center", fontSize: 32 },
         }}
+        InputLabelProps={{
+          style: { textAlign: "center", fontSize: 32 },
+        }}
+        label="Digits"
+        type="number"
+        variant="standard"
         value={text}
         onChange={(e) => {
           let value = e.target.value;
