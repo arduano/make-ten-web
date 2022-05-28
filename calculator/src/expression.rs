@@ -76,6 +76,11 @@ impl Expression {
                 if right_val == 1 {
                     return None;
                 }
+
+                // If the number is overflowing, then ignore
+                if left_val.checked_pow(right_val as u32).is_none() {
+                    return None;
+                }
             }
             _ => {}
         }
@@ -169,7 +174,10 @@ impl EvaluatedExpr {
         }
     }
 
-    pub fn evaluate(&self) -> i32 {
-        self.value
+    pub fn re_evaluate(&mut self) {
+        self.value = self.expression.evaluate();
+        if let Expression::Op(op) = &mut self.expression {
+            op.re_evaluate();
+        }
     }
 }

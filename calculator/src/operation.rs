@@ -97,6 +97,12 @@ impl Operation {
         same
     }
 
+    /// Recursively update the EvaluatedExpr cache
+    pub fn re_evaluate(&mut self) {
+        self.left.re_evaluate();
+        self.right.re_evaluate();
+    }
+
     pub fn depth(&self) -> usize {
         let left_depth = self.left.depth();
         let right_depth = self.right.depth();
@@ -120,6 +126,10 @@ impl Operation {
         }
     }
 
+
+    /// An aribtary recursive complexity metric that I came up with, where
+    /// addition and subtraction are simple, multiplication and division are more complex
+    /// and powers are the most complex.
     pub fn get_complexity(&self) -> u32 {
         let left = self.left.get_complexity_internal(self.kind, true);
         let right = self.right.get_complexity_internal(self.kind, false);
@@ -154,7 +164,7 @@ pub fn reverse_operation(op: OperationKind) -> OperationKind {
         OperationKind::Subtract => OperationKind::Add,
         OperationKind::Multiply => OperationKind::Divide,
         OperationKind::Divide => OperationKind::Multiply,
-        OperationKind::Power => OperationKind::Power,
+        OperationKind::Power => panic!("No reverse operation for Power"),
     }
 }
 
