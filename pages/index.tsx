@@ -43,6 +43,13 @@ const Home: NextPage = () => {
             setText(value);
           }
         }}
+        onKeyDown={(e) => {
+          // Apparently you can type "e" as in exponent into the box by default
+          // so that is prevented here
+          if (e.key === "e") {
+            e.preventDefault();
+          }
+        }}
       />
       <Box py={3} display="flex" flexDirection="column" alignItems="center">
         {results.map((result) => (
