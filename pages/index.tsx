@@ -44,7 +44,7 @@ const Home: NextPage = () => {
           }
         }}
       />
-      <Box pt={3} display="flex" flexDirection="column" alignItems="center">
+      <Box py={3} display="flex" flexDirection="column" alignItems="center">
         {results.map((result) => (
           <Box key={result}>{result}</Box>
         ))}
