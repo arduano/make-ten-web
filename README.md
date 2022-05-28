@@ -4,6 +4,10 @@ Based on the make ten train game that me and friends played. The train carraiges
 
 This simple website has a number text box that lets you enter a number up to 6 digits, and displays all the possible solutions, sorted by complexity.
 
+<p align="center">
+  <img width="460" height="300" src="https://github.com/arduano/make-ten-web/blob/main/preview.png?raw=true">
+</p>
+
 ## Project structure
 
 The root folder has [Nextjs](https://nextjs.org/) for serving the website, and the `calculator` folder is written in Rust and uses wasm-bindgen to generate a Typescript file (along with wasm binaries) that gets imported into nextjs.
